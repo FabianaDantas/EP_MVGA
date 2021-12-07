@@ -1,5 +1,11 @@
 import java.util.*;
 
+// EP1 - MVGA
+// 13/12/2021
+// Fabiana Dantas - NUSP 10367266
+// Isabel Boroni - NUSP 10284480
+
+
 // classe que representa uma matriz de valores do tipo double.
 
 class Matriz {
@@ -171,7 +177,25 @@ public class EP1 {
 		String operacao = in.next();		// le, usando o scanner, a string que determina qual operacao deve ser realizada.
 		int n = in.nextInt();			// le a dimensão da matriz a ser manipulada pela operacao escolhida.
 
-		// TODO: completar este metodo.
+        int cols = 0;
+        
+        if(operacao.equals("resolve")) {
+            cols = n+1;
+        } else {
+            cols = n;
+        }
+		
+		Matriz matriz = new Matriz(n, cols);
+		
+		for(int i = 0; i < n; i++){
+
+			for(int j = 0; j < cols; j++){
+	
+				matriz.set(i,j,in.nextDouble());
+			}
+		}
+		
+		matriz.imprime();
 
 		if("resolve".equals(operacao)){
 
