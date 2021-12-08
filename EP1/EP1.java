@@ -163,19 +163,42 @@ class Matriz {
 
 	public double formaEscalonada(Matriz agregada){
 
-		// TODO: implementar este metodo.	
+		// TODO: implementar este metodo.
 		
-		// Achar o pivô
-		int[] pivo = agregada.encontraLinhaPivo(0);
+    		
+        agregada.imprime();
+		// Achar o pivô e deixar na forma escalonada
+		int j = 0;
+		while (j < agregada.m.length-1) {
+    		int[] pivo = agregada.encontraLinhaPivo(j);
+    		
+    		// Se o pivo nao esta na linha j
+    		while(pivo[0] != j) {
+    		    agregada.trocaLinha(j,pivo[0]);
+    		    pivo = agregada.encontraLinhaPivo(j);
+    		}
+    		
+        	for(int i = pivo[0] + 1; i < agregada.m.length; i++) {
+        	    // Achar o multiplicador:
+        	    double multiplicador = (agregada.m[i][pivo[1]] / agregada.m[pivo[0]][pivo[1]]) * (-1);
+    		    agregada.combinaLinhas(i,pivo[0],multiplicador);
+        	} 
+    		j++;
+		}
+		System.out.println("\n");
+    	agregada.imprime();
 		
-		agregada.imprime();
-		
-		// Se o pivo nao esta na primeira linha
-		if(pivo[0] != 0) {
-		    agregada.trocaLinha(0,pivo[0]);
+		// Calcular determinante caso seja matriz quadrada
+		if(agregada.m.length == agregada.m[0].length) {
+		    
+		    return 0.0;
+		    
+		    
+		} else {
+		    return 0.0;
 		}
 		
-		return 0.0;
+		
 	}
 
 	// metodo que implementa a eliminacao de Gauss-Jordan, que coloca a matriz (que chama o metodo)
@@ -225,6 +248,7 @@ public class EP1 {
             matriz.formaEscalonada(matriz);
 		}
 		else if("inverte".equals(operacao)){
+            matriz.formaEscalonada(matriz);
 
 		}
 		else if("determinante".equals(operacao)){
