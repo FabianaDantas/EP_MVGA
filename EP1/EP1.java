@@ -91,14 +91,24 @@ class Matriz {
 
 	private void trocaLinha(int i1, int i2){
 	
-		// TODO: implementar este metodo.
+		// TODO: implementar este metodo. -- FEITO
+		double aux;
+		
+		for(int i = 0; i < m[i1].length; i++) {
+		    aux = m[i1][i];
+		    m[i1][i] = m[i2][i];
+		    m[i2][i] = aux;
+		}
 	}
 
 	// metodo que multiplica as entradas da linha i pelo escalar k
 
 	private void multiplicaLinha(int i, double k){
 
-		// TODO: implementar este metodo.
+		// TODO: implementar este metodo. -- FEITO
+		for(int j = 0; j < m[i].length; j++) {
+		    m[i][j] = m[i][j] * k;
+		}
 	}
 
 	// metodo que faz a seguinte combinacao de duas linhas da matriz:
@@ -108,7 +118,12 @@ class Matriz {
 
 	private void combinaLinhas(int i1, int i2, double k){
 
-		// TODO: implementar este metodo.
+		// TODO: implementar este metodo. -- FEITO
+		for(int i = 0; i < m[i1].length; i++) {
+		    m[i1][i] = m[i1][i] + (m[i2][i] * k);
+		}
+		
+		
 	}
 
 	// metodo que procura, a partir da linha ini, a linha com uma entrada nao nula que
@@ -148,8 +163,18 @@ class Matriz {
 
 	public double formaEscalonada(Matriz agregada){
 
-		// TODO: implementar este metodo.
-
+		// TODO: implementar este metodo.	
+		
+		// Achar o pivô
+		int[] pivo = agregada.encontraLinhaPivo(0);
+		
+		agregada.imprime();
+		
+		// Se o pivo nao esta na primeira linha
+		if(pivo[0] != 0) {
+		    agregada.trocaLinha(0,pivo[0]);
+		}
+		
 		return 0.0;
 	}
 
@@ -177,6 +202,7 @@ public class EP1 {
 		String operacao = in.next();		// le, usando o scanner, a string que determina qual operacao deve ser realizada.
 		int n = in.nextInt();			// le a dimensão da matriz a ser manipulada pela operacao escolhida.
 
+        // TODO: implementar este metodo. -- FEITO
         int cols = 0;
         
         if(operacao.equals("resolve")) {
@@ -194,11 +220,9 @@ public class EP1 {
 				matriz.set(i,j,in.nextDouble());
 			}
 		}
-		
-		matriz.imprime();
 
 		if("resolve".equals(operacao)){
-
+            matriz.formaEscalonada(matriz);
 		}
 		else if("inverte".equals(operacao)){
 
