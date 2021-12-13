@@ -36,6 +36,22 @@ class Matriz {
 		this.col = m;
 		this.m = new double[lin][col];
 	}
+	
+	// construtor criado para clonar objeto
+	public Matriz (Matriz matriz) {
+		this.lin = matriz.lin;
+		this.col = matriz.col;
+		this.m = new double[lin][col];
+		
+		for(int i = 0; i < lin; i++){
+
+			for(int j = 0; j < col; j++){
+	
+				this.m[i][j] = matriz.m[i][j];
+			}
+		}
+	    
+	}
 
 	public void set(int i, int j, double valor){
 
@@ -155,6 +171,22 @@ class Matriz {
 		return new int [] { pivo_lin, pivo_col };
 	}
 
+    // Troca a coluna para os calculos de determinante secundaria
+    // considerando que a coluna dos termos isolados eh sempre a ultima
+    // col eh a coluna da qual ira substituir
+    private Matriz trocarColunaPorTermosIsolados(Matriz agregada, int col) {
+        Matriz novaMatriz = agregada;
+        
+        for(int i = 0; i < agregada.lin; i++ ){
+            novaMatriz.m[i][col] = agregada.m[i][agregada.col-1];
+        }
+        
+        return novaMatriz;
+        
+    }
+
+
+
 	// metodo que implementa a eliminacao gaussiana, que coloca a matriz (que chama o metodo)
 	// na forma escalonada. As operacoes realizadas para colocar a matriz na forma escalonada 
 	// tambem devem ser aplicadas na matriz "agregada" caso esta seja nao nula. Este metodo 
@@ -164,7 +196,8 @@ class Matriz {
 	public double formaEscalonada(Matriz agregada){
 
 		// TODO: implementar este metodo.
-		
+		int trocaLinha = 1;
+		double determinante = 1;
     		
         agregada.imprime();
 		// Achar o pivô e deixar na forma escalonada
@@ -175,6 +208,7 @@ class Matriz {
     		// Se o pivo nao esta na linha j
     		while(pivo[0] != j) {
     		    agregada.trocaLinha(j,pivo[0]);
+    		    trocaLinha = trocaLinha * (-1);
     		    pivo = agregada.encontraLinhaPivo(j);
     		}
     		
@@ -188,16 +222,12 @@ class Matriz {
 		System.out.println("\n");
     	agregada.imprime();
 		
-		// Calcular determinante caso seja matriz quadrada
-		if(agregada.m.length == agregada.m[0].length) {
-		    
-		    return 0.0;
-		    
-		    
-		} else {
-		    return 0.0;
+		// Calcular determinante caso seja matriz quadrada **** --verificar
+		for (int i = 0; i < agregada.m.length; i++) {
+		    determinante = determinante * agregada.m[i][i];
 		}
-		
+		    
+		return determinante * trocaLinha;
 		
 	}
 
@@ -208,8 +238,28 @@ class Matriz {
 	// matriz ja esteja na forma escalonada (mas voce pode usar o metodo acima para isso).
 
 	public void formaEscalonadaReduzida(Matriz agregada){
-
-		// TODO: implementar este metodo.		
+	    
+		Matriz aux = new Matriz(agregada);
+		
+		double det = agregada.formaEscalonada(agregada);
+		
+		// Caso a determinante = 0, Sistema nao eh possivel de se resolver
+		if(det == 0.0) {
+		    double detSec;
+		    for(int i = 0; i < agregada.m.length; i++) {
+		        Matriz mi = new Matriz(aux);
+		        mi.trocarColunaPorTermosIsolados(mi,i);
+		        detSec = mi.formaEscalonada(mi);
+		        if(detSec == 0.0) {
+		            System.out.println("sistema sem solução");
+		            return;
+		        }
+		    }
+		    System.out.println("sistema possui diversas soluções");
+		    return;
+		}
+		
+		System.out.println("Não passa aqui");
 	}
 }
 
@@ -245,14 +295,14 @@ public class EP1 {
 		}
 
 		if("resolve".equals(operacao)){
-            matriz.formaEscalonada(matriz);
+            matriz.formaEscalonadaReduzida(matriz);
 		}
 		else if("inverte".equals(operacao)){
             matriz.formaEscalonada(matriz);
 
 		}
 		else if("determinante".equals(operacao)){
-
+            System.out.println(matriz.formaEscalonada(matriz));
 		}
 		else {
 			System.out.println("Operação desconhecida!");
