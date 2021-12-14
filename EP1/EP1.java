@@ -18,6 +18,7 @@ class Matriz {
 	
 	private int lin, col;	
 	private double [][] m;
+	public String operacao;
 
 	// metodo estatico que cria uma matriz identidade de tamanho n x n.
 
@@ -199,14 +200,13 @@ class Matriz {
 		int trocaLinha = 1;
 		double determinante = 1;
     		
-        agregada.imprime();
 		// Achar o pivô e deixar na forma escalonada
 		int j = 0;
 		while (j < agregada.m.length-1) {
     		int[] pivo = agregada.encontraLinhaPivo(j);
     		
     		// Se o pivo nao esta na linha j
-    		while(pivo[0] != j) {
+    		while(pivo[0] != j || agregada.m[pivo[0]][pivo[1]] == 0) {
     		    agregada.trocaLinha(j,pivo[0]);
     		    trocaLinha = trocaLinha * (-1);
     		    pivo = agregada.encontraLinhaPivo(j);
@@ -216,11 +216,9 @@ class Matriz {
         	    // Achar o multiplicador:
         	    double multiplicador = (agregada.m[i][pivo[1]] / agregada.m[pivo[0]][pivo[1]]) * (-1);
     		    agregada.combinaLinhas(i,pivo[0],multiplicador);
-        	} 
+        	}
     		j++;
 		}
-		System.out.println("\n");
-    	agregada.imprime();
 		
 		// Calcular determinante caso seja matriz quadrada **** --verificar
 		for (int i = 0; i < agregada.m.length; i++) {
@@ -251,16 +249,70 @@ class Matriz {
 		        mi.trocarColunaPorTermosIsolados(mi,i);
 		        detSec = mi.formaEscalonada(mi);
 		        if(detSec == 0.0) {
-		            System.out.println("sistema sem solução");
-		            return;
+		            System.out.println("sistema possui diversas soluções");
+		            System.exit(1);
 		        }
 		    }
-		    System.out.println("sistema possui diversas soluções");
-		    return;
+		    if(agregada.operacao.equals("resolve")){
+		        System.out.println("sistema sem solução");
+		    } else if (agregada.operacao.equals("inverte")) {
+		        System.out.println("matriz singular");
+		    }
+		    System.exit(1);
 		}
 		
-		System.out.println("Não passa aqui");
+		// verificar se a matriz tem mais de 1 elemento -- FAZER 
+		// escalonado
+		int j = 1;
+		while (j < agregada.lin){
+		    for(int i = j - 1; i >= 0; i--) {
+            	// Achar o multiplicador:
+            	double multiplicador = (agregada.m[i][j] / agregada.m[j][j]) * (-1);
+        		agregada.combinaLinhas(i,j,multiplicador);
+            }
+		    j++;
+		}
+		
+		// deixar diagonal principal = 1
+		j = 0;
+		while (j < agregada.lin){
+            double multiplicador = (1 / agregada.m[j][j]);
+		    agregada.multiplicaLinha(j,multiplicador);
+		    j++;
+		}
 	}
+	
+	public Matriz juntarMatrizIdentidade(Matriz agregada, Matriz identidade) {
+	    Matriz matrizJuntas = new Matriz(agregada.lin, agregada.col+identidade.col);
+	    
+	    for (int i = 0; i < agregada.lin;i++) {
+			for(int j = 0; j < agregada.col; j++){
+			    matrizJuntas.m[i][j] = agregada.m[i][j];
+			}
+	    }
+	    for (int i = 0; i < agregada.lin;i++) {
+			for(int j = agregada.col; j < agregada.col*2; j++){
+			    matrizJuntas.m[i][j] = identidade.m[i][j - agregada.col];
+			}
+	    }
+	    
+	    return matrizJuntas;
+	}
+	
+	public Matriz separarMatrizInversa(Matriz matrizJunta) {
+	    Matriz inversa = new Matriz(matrizJunta.lin, matrizJunta.col/2);
+	    
+	    for (int i = 0; i < matrizJunta.lin;i++) {
+			for(int j = matrizJunta.lin; j < matrizJunta.col; j++){
+			    inversa.m[i][j-matrizJunta.lin] = matrizJunta.m[i][j];
+			}
+	    }
+	    
+	    
+	    return inversa;
+	}
+	
+	
 }
 
 // Classe "executavel".
@@ -285,24 +337,32 @@ public class EP1 {
         }
 		
 		Matriz matriz = new Matriz(n, cols);
+		matriz.operacao = operacao;
 		
 		for(int i = 0; i < n; i++){
-
 			for(int j = 0; j < cols; j++){
-	
 				matriz.set(i,j,in.nextDouble());
 			}
 		}
 
 		if("resolve".equals(operacao)){
             matriz.formaEscalonadaReduzida(matriz);
+            for(int i = 0; i < n;i++){
+                System.out.printf("%.2f\n",matriz.get(i,n));
+            }
+            
 		}
 		else if("inverte".equals(operacao)){
-            matriz.formaEscalonada(matriz);
+		    Matriz identidade = matriz.identidade(n);
+		    Matriz matrizJuntas = identidade.juntarMatrizIdentidade(matriz,identidade);
+		    matrizJuntas.operacao = operacao;
+            matrizJuntas.formaEscalonadaReduzida(matrizJuntas);
+		    Matriz inversa = identidade.separarMatrizInversa(matrizJuntas);
+		    inversa.imprime();
 
 		}
 		else if("determinante".equals(operacao)){
-            System.out.println(matriz.formaEscalonada(matriz));
+            System.out.printf("%.2f\n",matriz.formaEscalonada(matriz));
 		}
 		else {
 			System.out.println("Operação desconhecida!");
