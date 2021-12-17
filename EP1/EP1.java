@@ -205,6 +205,11 @@ class Matriz {
 		while (j < agregada.m.length-1) {
     		int[] pivo = agregada.encontraLinhaPivo(j);
     		
+    		// verifica se o pivo nao eh -0.0
+    		if(Math.abs(agregada.m[pivo[0]][pivo[1]]) < SMALL){
+    		    agregada.m[pivo[0]][pivo[1]] = 0.0;
+    		    pivo = agregada.encontraLinhaPivo(j);
+    		}
     		// Se o pivo nao esta na linha j
     		while(pivo[0] != j || agregada.m[pivo[0]][pivo[1]] == 0) {
     		    agregada.trocaLinha(j,pivo[0]);
@@ -244,6 +249,28 @@ class Matriz {
 		// Caso a determinante = 0, Sistema nao eh possivel de se resolver
 		if(det == 0.0) {
 		    double detSec;
+		    // verificar 0s em uma linha
+		    for (int i = 0; i < agregada.m.length; i++) {
+		        for (int j = 0; j < agregada.m.length; j++) {
+		            if(agregada.m[i][j] != 0) {
+		                break;
+		            }
+		            if(j == agregada.m.length - 1 ){
+		                if(agregada.m.length != agregada.col && agregada.m[i][j+1] != 0){
+		                    
+		                    if(agregada.operacao.equals("resolve")){
+		                        System.out.println("sistema sem solução");
+		                    } else if (agregada.operacao.equals("inverte")) {
+		                        System.out.println("matriz singular");
+		                    }
+		                    System.exit(1);
+		                }
+		                
+		            }
+		        }
+		    }
+		    
+		    // verificar determinante secundarias igual a 0
 		    for(int i = 0; i < agregada.m.length; i++) {
 		        Matriz mi = new Matriz(aux);
 		        mi.trocarColunaPorTermosIsolados(mi,i);
@@ -253,12 +280,6 @@ class Matriz {
 		            System.exit(1);
 		        }
 		    }
-		    if(agregada.operacao.equals("resolve")){
-		        System.out.println("sistema sem solução");
-		    } else if (agregada.operacao.equals("inverte")) {
-		        System.out.println("matriz singular");
-		    }
-		    System.exit(1);
 		}
 		
 		// verificar se a matriz tem mais de 1 elemento -- FAZER 
@@ -272,7 +293,6 @@ class Matriz {
             }
 		    j++;
 		}
-		
 		// deixar diagonal principal = 1
 		j = 0;
 		while (j < agregada.lin){
@@ -307,8 +327,6 @@ class Matriz {
 			    inversa.m[i][j-matrizJunta.lin] = matrizJunta.m[i][j];
 			}
 	    }
-	    
-	    
 	    return inversa;
 	}
 	
@@ -340,29 +358,27 @@ public class EP1 {
 		matriz.operacao = operacao;
 		
 		for(int i = 0; i < n; i++){
-			for(int j = 0; j < cols; j++){
-				matriz.set(i,j,in.nextDouble());
-			}
+		    for(int j = 0; j < cols; j++){
+		        matriz.set(i,j,in.nextDouble());
+		    }
 		}
 
 		if("resolve".equals(operacao)){
             matriz.formaEscalonadaReduzida(matriz);
-            for(int i = 0; i < n;i++){
-                System.out.printf("%.2f\n",matriz.get(i,n));
-            }
-            
+		    for(int i = 0; i < n;i++){
+		        System.out.printf("%.2f\n",matriz.get(i,n));
+		    }
 		}
 		else if("inverte".equals(operacao)){
 		    Matriz identidade = matriz.identidade(n);
 		    Matriz matrizJuntas = identidade.juntarMatrizIdentidade(matriz,identidade);
 		    matrizJuntas.operacao = operacao;
-            matrizJuntas.formaEscalonadaReduzida(matrizJuntas);
+		    matrizJuntas.formaEscalonadaReduzida(matrizJuntas);
 		    Matriz inversa = identidade.separarMatrizInversa(matrizJuntas);
 		    inversa.imprime();
-
 		}
 		else if("determinante".equals(operacao)){
-            System.out.printf("%.2f\n",matriz.formaEscalonada(matriz));
+		    System.out.printf("%.2f\n",matriz.formaEscalonada(matriz));
 		}
 		else {
 			System.out.println("Operação desconhecida!");
